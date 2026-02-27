@@ -7,19 +7,19 @@
     <style>
         @font-face {
             font-family: '2';
-            src: url('https://forumstatic.ru/files/001a/a3/94/73088.ttf?v=1');
+            src: url('http://forumstatic.ru/files/001a/a3/94/73088.ttf?v=1');
         }
         body {
             background: #000000;
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-size: 16px;
+            font-size: 20px;
             color: #ffffff;
             font-family: '2';
         }
         .header-title {
-            font-size: 26px;
+            font-size: 36px;
             font-weight: 700;
             color: orange;
             margin: 20px 0;
@@ -43,7 +43,8 @@
 </head>
 <body>
     <div style="text-align: center; margin-bottom: 20px;">
-        <button onclick="loadLeaderboards()" style="padding: 15px 30px; font-size: 18px;">Обновить таблицы</button>
+        <button onclick="loadLeaderboards()" style="padding: 15px 30px; font-size: 18px;">Обновить таблицы</button><br>
+        <button onclick="loadLeaderboards2()" style="padding: 15px 30px; font-size: 18px;">Обновить таблицы</button>
     </div>
 
     <div class="leaderboard-container">
@@ -129,6 +130,29 @@
         </div>
     </div>
 
+    <div class="leaderboard-container">
+        <div class="header-title">Статистика мониторинга</div>
+        <div id="statsTable" class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Показатель</th>
+                        <th>Значение</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="leaderboard-container">
+        <div class="header-title">Информация об обновлении</div>
+        <div id="updateInfo">
+            <p>Последнее обновление: <span id="lastUpdate"></span></p>
+        </div>
+    </div>
+
     <script>
     async function loadLeaderboards() {
         try {
@@ -144,7 +168,7 @@
                 const sortedData = [...data].sort((a, b) => b[sortField] - a[sortField]);
                 
                 // Заполняем таблицу
-                sortedData.slice(0, 10).forEach((player, index) => {
+                sortedData.slice(0, 6).forEach((player, index) => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${index + 1}</td>
@@ -169,6 +193,55 @@
 
     // Загружаем таблицы при загрузке страницы
     window.addEventListener('load', loadLeaderboards);
+    
+    async function loadLeaderboards2() {
+        try {
+            const response = await fetch('http://192.168.1.64:5000/api/monitoring');
+            const data = await response.json();
+            
+            // Заполняем таблицу статистики
+            const statsTableBody = document.querySelector('#statsTable tbody');
+            statsTableBody.innerHTML = '';
+            
+            // Массив для отображения нужных показателей
+            const statsFields = [
+                { key: 'monitoring_players', name: 'Количество игроков' },
+                { key: 'monitoring_mau', name: 'MAU' },
+                { key: 'monitoring_click_count', name: 'Общее количество кликов' },
+                { key: 'monitoring_xp', name: 'Общий XP' },
+                { key: 'monitoring_gems', name: 'Общие гемы' },
+                { key: 'monitoring_payed_gems', name: 'Купленные гемы' },
+                { key: 'monitoring_withdraw_gems', name: 'Выведенные гемы' },
+                { key: 'monitoring_bank_gems', name: 'Гемы в банке' },
+                { key: 'monitoring_stars', name: 'Общие звезды' },
+                { key: 'monitoring_payed_stars', name: 'Купленные звезды' },
+                { key: 'monitoring_withdraw_stars', name: 'Выведенные звезды' },
+                { key: 'monitoring_bank_stars', name: 'Звезды в банке' },
+                { key: 'monitoring_spin_count', name: 'Общее количество спинов' },
+                { key: 'monitoring_win_spin_count', name: 'Выигрышные спины' },
+                { key: 'monitoring_lose_spin_count', name: 'Проигрышные спины' }
+            ];
+            
+            // Заполняем строки таблицы
+            statsFields.forEach(field => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${field.name}</td>
+                    <td>${data[field.key] || 0}</td>
+                `;
+                statsTableBody.appendChild(row);
+            });
+            
+            // Обновляем информацию о последнем обновлении
+            document.getElementById('lastUpdate').textContent = data.last_updated || 'Данные отсутствуют';
+            
+        } catch (error) {
+            console.error('Ошибка:', error);
+            alert('Не удалось загрузить данные. Попробуйте обновить страницу.');
+        }
+    }
+
+    window.addEventListener('load', loadLeaderboards2);
     </script>
 </body>
 </html>
