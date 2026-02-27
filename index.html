@@ -132,7 +132,7 @@
     <script>
     async function loadLeaderboards() {
         try {
-            const response = await fetch('http://192.168.1.64:5000/api/users/all');
+            const response = await fetch('http://0.0.0.0:5000/api/users/all');
             const data = await response.json();
             
             // Функция для заполнения таблицы
