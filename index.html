@@ -1,55 +1,171 @@
-<meta name="viewport" content="width=device-width, initial-scale=1.000, maximum-scale=1.000, user-scalable=no, shrink-to-fit=no">
-<meta charset="utf-8">
-	
-<style>
-@font-face {
-font-family: '2';
-src: url('https://forumstatic.ru/files/001a/a3/94/36874.ttf?v=1');
-}
-body{
-background: #0d0a31;
-margin: 0;
-padding: 0;
-box-sizing: border-box;
-font-size: 24px;
-color: #ffffff;
-}
-</style>
-
 <!DOCTYPE html>
 <html>
 <head>
     <title>API Test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.000, maximum-scale=1.000, user-scalable=no, shrink-to-fit=no">
+    <meta charset="utf-8">
+    <style>
+        @font-face {
+            font-family: '2';
+            src: url('https://forumstatic.ru/files/001a/a3/94/36874.ttf?v=1');
+        }
+        body {
+            background: #000000;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-size: 24px;
+            color: #ffffff;
+        }
+        .header-title {
+            font-size: 42px;
+            font-weight: 700;
+            color: orange;
+            margin: 20px 0;
+        }
+        table {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        th, td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ffffff; /* Добавляем границу */
+}
+
+        th {
+    background-color: #222; /* Опционально: добавляем фоновый цвет для заголовков */
+}
+    </style>
 </head>
 <body>
-    <button onclick="lol1()">Получить данные</button>
-    <div id="result"></div>
+    <div style="text-align: center; margin-bottom: 20px;">
+        <button onclick="loadLeaderboards()" style="padding: 15px 30px; font-size: 18px;">Обновить таблицы</button>
+    </div>
+
+    <div class="leaderboard-container">
+        <div class="header-title">Топ по гемам</div>
+        <div id="gemsTable" class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Место</th>
+                        <th>Имя</th>
+                        <th>Гемы</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="leaderboard-container">
+        <div class="header-title">Топ по опыту</div>
+        <div id="xpTable" class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Место</th>
+                        <th>Имя</th>
+                        <th>XP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="leaderboard-container">
+        <div class="header-title">Топ по кликам</div>
+        <div id="clicksTable" class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Место</th>
+                        <th>Имя</th>
+                        <th>Клики</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="leaderboard-container">
+        <div class="header-title">Топ по звездам</div>
+        <div id="starsTable" class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Место</th>
+                        <th>Имя</th>
+                        <th>Звёзды</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="leaderboard-container">
+        <div class="header-title">Топ по спинам</div>
+        <div id="spinsTable" class="table-wrapper">
+            <table>
+                <thead>
+                    <th>Место</th>
+                    <th>Имя</th>
+                    <th>Спины</th>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
     <script>
-    function lol1() {
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', 'http://127.0.0.1:5000/api/users/1763784339', true);
-        xhr.timeout = 12000;
-        
-        // Устанавливаем обработчик состояния ДО отправки запроса
-        xhr.onreadystatechange = function(e) {
-            if (xhr.readyState === 4) {
-                if (xhr.status === 200) {
-                    try {
-                        var response = JSON.parse(xhr.responseText);
-                        console.log(response);
-                        document.getElementById('result').innerText = JSON.stringify(response, null, 2);
-                    } catch (error) {
-                        console.error('Ошибка парсинга JSON:', error);
-                    }
-                } else {
-                    console.error('Ошибка запроса:', xhr.statusText);
-                }
+    async function loadLeaderboards() {
+        try {
+            const response = await fetch('http://127.0.0.1:5000/api/users/all');
+            const data = await response.json();
+            
+            // Функция для заполнения таблицы
+            function fillTable(tableId, sortField, fieldName) {
+                const tableBody = document.querySelector(`${tableId} tbody`);
+                tableBody.innerHTML = '';
+                
+                // Сортируем данные по нужному полю
+                const sortedData = [...data].sort((a, b) => b[sortField] - a[sortField]);
+                
+                // Заполняем таблицу
+                sortedData.slice(0, 6).forEach((player, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${player.first_name}</td>
+                        <td>${player[sortField]}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
             }
-        };
-        
-        xhr.send();
+            
+            // Заполняем все таблицы
+            fillTable('#gemsTable', 'gems', 'Гемы');
+            fillTable('#xpTable', 'xp', 'XP');
+            fillTable('#clicksTable', 'click_count', 'Клики');
+            fillTable('#starsTable', 'stars', 'Звёзды');
+            fillTable('#spinsTable', 'spin_count', 'Спины');
+            
+        } catch (error) {
+            console.error('Ошибка:', error);
+        }
     }
+
+    // Загружаем таблицы при загрузке страницы
+    window.addEventListener('load', loadLeaderboards);
     </script>
 </body>
 </html>
