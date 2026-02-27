@@ -144,7 +144,7 @@
                 const sortedData = [...data].sort((a, b) => b[sortField] - a[sortField]);
                 
                 // Заполняем таблицу
-                sortedData.slice(0, 6).forEach((player, index) => {
+                sortedData.slice(0, 10).forEach((player, index) => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${index + 1}</td>
