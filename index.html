@@ -199,10 +199,6 @@
         <div class="updated" id="updated-time"></div>
     </div>
 
-<div style="width: 100%; max-width: 200px;">
-    <canvas id="chart"></canvas>
-</div>
-
     <script>
     async function loadLeaderboards() {
         try {
@@ -293,9 +289,6 @@
 
     window.addEventListener('load', loadLeaderboards2);
     
-        // Инициализация canvas
-        const canvas = document.getElementById('chart');
-        const ctx = canvas.getContext('2d');
         
         // Массив для хранения истории трофеев
         let trophiesHistory = [];
@@ -326,74 +319,11 @@
                 document.getElementById('player-prestige').textContent = data.prestige;
                 document.getElementById('updated-time').textContent = `Обновлено: ${new Date(data.updated).toLocaleString()}`;
 
-                // Обновляем график
-                drawChart();
-
             } catch (error) {
                 console.error('Ошибка при загрузке данных:', error);
                 alert('Не удалось получить данные игрока');
             }
         }
-        
-let myChart; // Объявляем глобальную переменную
-
-function drawChart() {
-    if (trophiesHistory.length === 0) return;
-
-    const labels = trophiesHistory.map(item => item.date.toLocaleDateString());
-    const data = trophiesHistory.map(item => item.trophies);
-
-    if (myChart) {
-        // Обновляем существующие данные
-        myChart.data.labels = labels;
-        myChart.data.datasets[0].data = data;
-        myChart.update(); // Обновляем диаграмму
-    } else {
-        // Создаем новую диаграмму
-        myChart = new Chart(canvas.getContext('2d'), {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Трофеи',
-                    data: data,
-                    backgroundColor: 'orange',
-                    borderColor: 'white',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return value;
-                            }
-                        }
-                    },
-                    x: {
-                        ticks: {
-                            maxTicksLimit: trophiesHistory.length,
-                            autoSkip: false
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        enabled: true
-                    }
-                },
-                aspectRatio: 4/3
-            }
-        });
-    }
-}
 
         // Инициализация
         loadStats();
