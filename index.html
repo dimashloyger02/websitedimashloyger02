@@ -174,30 +174,8 @@
         </div>
     </div>
     
-    <div class="stats-overlay" id="stats-container">
-        <div class="stat">
-            <span>Имя:</span> <span class="value" id="player-name"></span>
-        </div>
-        <div class="stat">
-            <span>Тег:</span> <span class="value" id="player-tag"></span>
-        </div>
-        <div class="stat">
-            <span>Трофеи:</span> <span class="value" id="player-trophies"></span>
-        </div>
-        <div class="stat">
-            <span>Макс. трофеи:</span> <span class="value" id="max-trophies"></span>
-        </div>
-        <div class="stat">
-            <span>Уровень:</span> <span class="value" id="player-level"></span>
-        </div>
-        <div class="stat">
-            <span>Опыт:</span> <span class="value" id="exp-points"></span>
-        </div>
-        <div class="stat">
-            <span>Престиж:</span> <span class="value" id="player-prestige"></span>
-        </div>
-        <div class="updated" id="updated-time"></div>
-    </div>
+<span id="competitionContainer">Работает?</span><br>
+<button onclick="loadStats1()" style="padding: 15px 30px; font-size: 18px;">Обновить</button><hr>
 
     <script>
     async function loadLeaderboards() {
@@ -289,47 +267,130 @@
 
     window.addEventListener('load', loadLeaderboards2);
     
+const players = [
+    '29G9UY820',    // Дима
+    'YQ9G0QGUP',    // Dexs23
+    'Q9C8C9YLY',    // Дмитрий
+    'YCYGVYJY9',    // 1 ЛАЙК=1 КУБОК
+    'QJPR99GV2',    // Путь Славы
+    'GJPYY0PLG',    // Любимый
+    'GCRUP2QRL',    // Ютубер :)
+    'RPVQ22QGU',    // Дима 2
+    'URVG2RPVP',    // Путь 100 призов
+    '298GJRG29R'    // Gemstone
+];
+
+homer = null
+
+// Функция для получения статистики игрока
+async function loadStats(playerTag) {
+    try {
+        const response = await fetch(`http://192.168.1.64:5000/api/player/${playerTag}`);
         
-        // Массив для хранения истории трофеев
-        let trophiesHistory = [];
-
-        async function loadStats() {
-            try {
-                const response = await fetch('http://192.168.1.64:5000/api/player/29G9UY820');
-                const data = await response.json();
-
-                // Сохраняем текущие трофеи в историю
-                trophiesHistory.push({
-                    date: new Date(),
-                    trophies: data.trophies
-                });
-
-                // Ограничиваем размер истории (например, последними 7 днями)
-                if (trophiesHistory.length > 7) {
-                    trophiesHistory.shift();
-                }
-
-                // Заполняем данные
-                document.getElementById('player-name').textContent = data.name;
-                document.getElementById('player-tag').textContent = data.tag;
-                document.getElementById('player-trophies').textContent = data.trophies;
-                document.getElementById('max-trophies').textContent = data.max_trophies;
-                document.getElementById('player-level').textContent = data.level;
-                document.getElementById('exp-points').textContent = data.expPoints;
-                document.getElementById('player-prestige').textContent = data.prestige;
-                document.getElementById('updated-time').textContent = `Обновлено: ${new Date(data.updated).toLocaleString()}`;
-
-            } catch (error) {
-                console.error('Ошибка при загрузке данных:', error);
-                alert('Не удалось получить данные игрока');
-            }
+        if (!response.ok) {
+            throw new Error(`Ошибка: ${response.status}`);
         }
+        
+        // Сохраняем результат в переменную
+        const homs = await response.json();
+        
+        // Теперь можно использовать homs как обычную переменную
+        console.log('Полученные данные:', homs);
+        homer = homs
+        
+        // Возвращаем данные
+        return homs;
+        
+    } catch (error) {
+        console.error(`Ошибка для тега ${playerTag}:`, error);
+        return null;
+    }
+}
 
-        // Инициализация
-        loadStats();
+async function loadStats1() {
+    const competitionPlayers = ['ULQY2U8U', '80RCCGQL'];
+    const TARGET = 200000;
+    let playersData = [];
 
-        // Автообновление каждые 20 минут
-        setInterval(loadStats, 200000);
+    // Получаем данные игроков
+    for (let tag of competitionPlayers) {
+        try {
+            const response = await fetch(`http://192.168.1.64:5000/api/player/${tag}`);
+            const data = await response.json();
+            playersData.push({
+                name: data.name,
+                tag: tag,
+                trophies: data.trophies,
+                toTarget: TARGET - data.trophies
+            });
+        } catch (error) {
+            console.error(`Ошибка загрузки данных для ${tag}:`, error);
+        }
+    }
+
+    // Сортируем по трофеям (по убыванию)
+    playersData.sort((a, b) => b.trophies - a.trophies);
+
+    // Добавляем CSS стили для выделения
+    const styles = `
+        <style>
+            #competitionTable {
+                font-family: '2';
+                color: white;
+                background: black;
+                padding: 15px;
+            }
+            .quotes {
+                margin-bottom: 10px;
+                padding: 5px;
+                border-left: 3px solid #777;
+            }
+            .quotes b {
+                color: gold;
+            }
+            .winner {
+                color: gold;
+                font-size: 1.2em;
+            }
+        </style>
+    `;
+
+    // Формируем HTML-строку с таблицей лидеров
+    let htmlOutput = `
+        ${styles}
+        <div id="competitionTable">
+            <b>🎯 СОРЕВНОВАНИЕ ЗА 200000 ТРОФЕЕВ 🎯</b><br><br>
+            <b>🏆 ТАБЛИЦА ЛИДЕРОВ:</b><br><br>
+    `;
+
+    playersData.forEach((player, index) => {
+        htmlOutput += `
+            <div class="quotes">
+                ${index + 1}. <b>${player.name} (${player.tag})</b>:<br>
+                &nbsp;&nbsp;• Текущие трофеи: <b>${player.trophies}</b><br>
+                &nbsp;&nbsp;• До цели: <b>${player.toTarget}</b><br><br>
+            </div>
+        `;
+    });
+
+    // Добавляем информацию о победителе
+    const winner = playersData.find(player => player.trophies >= TARGET);
+    if (winner) {
+        htmlOutput += `<div class="winner"><br>🏆 ПОБЕДИТЕЛЬ: ${winner.name}!</div>`;
+    } else {
+        htmlOutput += `<br><b>🏆 Победитель пока не определен</b><br>`;
+    }
+
+    htmlOutput += '</div>';
+
+    // Выводим в элемент DOM
+    document.getElementById('competitionContainer').innerHTML = htmlOutput;
+}
+
+// Запуск обновления при загрузке страницы
+window.addEventListener('load', () => {
+    loadStats1();
+});
     </script>
 </body>
 </html>
