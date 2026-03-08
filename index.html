@@ -393,7 +393,7 @@ window.addEventListener('load', () => {
 });
     </script>
     <script>
-        // Регистрация сервис-воркера
+// Регистрация сервис-воркера
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('/service-worker.js')
@@ -413,7 +413,6 @@ async function requestNotificationPermission() {
         
         if (permission === 'granted') {
             console.log('Уведомления разрешены');
-            showTestNotification();
         } else {
             console.log('Уведомления запрещены');
         }
@@ -422,25 +421,42 @@ async function requestNotificationPermission() {
     }
 }
 
-// Функция показа тестового уведомления
-async function showTestNotification() {
-    if (!('serviceWorker' in navigator)) return;
-
+// Универсальная функция отправки уведомления
+async function sendNotification(title, options = {}) {
     try {
+        // Проверяем разрешение
+        if (Notification.permission !== 'granted') {
+            throw new Error('Уведомления не разрешены');
+        }
+
+        // Получаем регистрацию
         const registration = await navigator.serviceWorker.getRegistration();
         
-        if (registration) {
-            registration.showNotification('Тестовое уведомление', {
-                body: 'Это тестовое уведомление',
-                icon: '/path-to-icon.png',
-                vibrate: [100, 50, 100],
-                actions: [
-                    { action: 'view', title: 'Открыть' }
-                ]
-            });
+        if (!registration) {
+            throw new Error('Сервис-воркер не зарегистрирован');
         }
+
+        // Объединяем параметры по умолчанию с переданными
+        const defaultOptions = {
+            body: 'Новое уведомление',
+            icon: '/path-to-icon.png',
+            vibrate: [100, 50, 100],
+            actions: [
+                { action: 'view', title: 'Открыть' }
+            ]
+        };
+
+        const finalOptions = {
+            ...defaultOptions,
+            ...options
+        };
+
+        // Показываем уведомление
+        await registration.showNotification(title, finalOptions);
+        
+        console.log('Уведомление успешно отправлено');
     } catch (error) {
-        console.error('Ошибка показа уведомления', error);
+        console.error('Ошибка при отправке уведомления:', error);
     }
 }
 
@@ -448,7 +464,6 @@ async function showTestNotification() {
 document.addEventListener('DOMContentLoaded', () => {
     requestNotificationPermission();
 });
-        
     </script>
     <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
 <script>eruda.init();</script>
