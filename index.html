@@ -392,5 +392,51 @@ window.addEventListener('load', () => {
     loadStats1();
 });
     </script>
+    <script>
+        // Функция для отправки уведомления
+function sendNotification(title, options) {
+    // Проверяем поддержку уведомлений
+    if (!window.Notification) {
+        console.log('Ваш браузер не поддерживает уведомления');
+        return;
+    }
+
+    // Проверяем права на отправку уведомлений
+    if (Notification.permission === 'granted') {
+        // Создаем уведомление
+        const notification = new Notification(title, {
+            body: options.body || '',
+            icon: options.icon || '',
+            dir: options.dir || 'auto',
+            vibrate: options.vibrate || false
+        });
+
+        // Обработчик клика
+        notification.onclick = () => {
+            // Действие при клике
+            window.open(options.url || '');
+        };
+
+        // Автоматическое закрытие через 10 секунд
+        setTimeout(() => notification.close(), 10000);
+    } else {
+        // Запрашиваем разрешение
+        Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+                sendNotification(title, options);
+            }
+        });
+    }
+}
+
+// Пример использования
+sendNotification('Новое сообщение', {
+    body: 'У вас есть новое сообщение',
+    icon: 'icon.png',
+    url: 'https://example.com',
+    vibrate: true
+});
+        
+    </script>
 </body>
 </html>
