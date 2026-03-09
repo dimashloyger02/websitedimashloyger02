@@ -1,9 +1,14 @@
 {
-  "version": 2,
+  "builds": [
+    {
+      "src": "app.py",
+      "use": "@vercel/python"
+    }
+  ],
   "routes": [
     {
-      "src": "/api(.*)",
-      "dest": "https://192.168.1.64:5000$1"  // Важно добавить $1 для передачи пути
+      "src": "/(.*)",
+      "dest": "app.py"
     }
   ]
 }
