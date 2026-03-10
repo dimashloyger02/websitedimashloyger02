@@ -431,9 +431,13 @@ navigator.serviceWorker.addEventListener('message', (event) => {
         case 'input-confirmed':
             alert(event.data.message);
             break;
+            
+        case 'alert-response':
+            alert(event.data.message);
+            break;
     }
 });
-
+        
 // Функция для отправки уведомления через сервис-воркер
 async function sendNotification(title, options = {}) {
     try {
@@ -459,13 +463,10 @@ async function sendNotification(title, options = {}) {
         await registration.showNotification(title, {
             body: options.body || '',
             icon: options.icon || '',
-            dir: options.dir || 'auto',
-            vibrate: options.vibrate || false,
-            actions: options.actions || [
+            actions: [
                 { action: 'reply', title: 'Ответить' },
-                { action: 'archive', title: 'Архивировать' },
-                { action: 'view', title: 'Открыть' },
-                { action: 'alert', title: 'Показать сообщение' }
+                { action: 'alert', title: 'Показать сообщение' },
+                { action: 'view', title: 'Открыть' }
             ]
         });
     } catch (error) {
