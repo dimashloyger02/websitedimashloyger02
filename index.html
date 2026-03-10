@@ -394,6 +394,117 @@ window.addEventListener('load', () => {
     </script>
 
     <script>
+        // Регистрация сервис-воркера
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+            .then(registration => {
+                console.log('Сервис-воркер зарегистрирован');
+            })
+            .catch(error => {
+                console.error('Ошибка регистрации сервис-воркера:', error);
+            });
+    });
+}
+
+// Обработка сообщений от service worker
+navigator.serviceWorker.addEventListener('message', (event) => {
+    console.log('Получено сообщение от SW:', event.data);
+    switch (event.data.type) {
+        case 'show-input':
+            console.log('Запрос на ввод текста');
+            const inputText = prompt(event.data.message);
+            if (inputText) {
+                event.source.postMessage({
+                    type: 'input-response',
+                    text: inputText
+                });
+            }
+            break;
+            
+        case 'input-confirmed':
+            console.log('Подтверждение ввода');
+            alert(event.data.message);
+            break;
+            
+        case 'show-alert':
+            console.log('Запрос на алерт');
+            alert(event.data.message);
+            break;
+    }
+});
+
+// Функция для отправки уведомления
+async function sendNotification(title, options = {}) {
+    try {
+        if (!window.Notification) {
+            console.log('Ваш браузер не поддерживает уведомления');
+            return;
+        }
+
+        if (Notification.permission !== 'granted') {
+            const permission = await Notification.requestPermission();
+            if (permission !== 'granted') {
+                console.log('Уведомления запрещены');
+                return;
+            }
+        }
+
+        const registration = await navigator.serviceWorker.getRegistration();
+        if (!registration) {
+            console.error('Сервис-воркер не зарегистрирован');
+            return;
+        }
+
+        await registration.showNotification(title, {
+            body: options.body || '',
+            icon: options.icon || '',
+            actions: [
+                { action: 'reply', title: 'Ответить' },
+                { action: 'alert', title: 'Показать сообщение' },
+                { action: 'view', title: 'Открыть' }
+            ]
+        });
+    } catch (error) {
+        console.error('Ошибка при отправке уведомления:', error);
+    }
+}
+
+// Инициализация
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        // Сначала запрашиваем разрешение на уведомления
+        await requestNotificationPermission();
+        
+        // Отправляем тестовое уведомление
+        await sendNotification('Новое сообщение', {
+            body: 'Выберите действие:',
+            icon: 'https://media.brawltime.ninja/avatars/28000000.webp?size=192',
+            actions: [
+                { action: 'reply', title: 'Ответить' },
+                { action: 'alert', title: 'Показать сообщение' },
+                { action: 'view', title: 'Открыть' }
+            ]
+        });
+    } catch (error) {
+        console.error('Ошибка инициализации:', error);
+    }
+});
+
+// Функция запроса разрешения на уведомления
+async function requestNotificationPermission() {
+    try {
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+            console.log('Уведомления разрешены');
+        } else {
+            console.log('Уведомления запрещены');
+        }
+    } catch (error) {
+        console.error('Ошибка запроса разрешения:', error);
+    }
+                }
+        
     </script>
     
     <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
