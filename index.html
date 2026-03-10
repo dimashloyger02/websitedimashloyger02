@@ -508,6 +508,7 @@ async function requestNotificationPermission() {
     </script>
 
     <script>
+function loadscripttv(){
 // Поиск всех методов, содержащих определенные ключевые слова
 const searchKeywords = ['alert', 'notification', 'message', 'tv'];
 
@@ -522,6 +523,7 @@ function searchMethods(obj, keywords) {
             }
         }
     });
+}
 }
 
 searchMethods(window, searchKeywords);
