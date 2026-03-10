@@ -1,19 +1,23 @@
+// Обработка клика по уведомлению
 self.addEventListener('notificationclick', (event) => {
-    event.notification.close(); // Закрываем уведомление
+    event.notification.close();
     
     // Обрабатываем действия
     switch (event.action) {
         case 'view':
-            // Открываем главную страницу
-            clients.openWindow('/').then(client => {
-                if (client) {
-                    client.focus();
-                }
+            // Открываем форму ввода
+            clients.matchAll({type: 'window'}).then((clientList) => {
+                clientList.forEach((client) => {
+                    client.postMessage({
+                        type: 'show-input',
+                        message: 'Введите текст:'
+                    });
+                });
             });
             break;
             
         case 'alert':
-            // Показываем алерт (через Client)
+            // Показываем алерт
             clients.matchAll({type: 'window'}).then((clientList) => {
                 clientList.forEach((client) => {
                     client.postMessage({
@@ -52,10 +56,19 @@ self.addEventListener('notificationclick', (event) => {
     }
 });
 
-// Обработчик сообщений от клиента (для алерта)
+// Обработчик сообщений от клиента
 self.addEventListener('message', (event) => {
+    // Обработка ввода текста
+    if (event.data.type === 'input-response') {
+        const inputText = event.data.text;
+        event.source.postMessage({
+            type: 'input-confirmed',
+            message: `Получен текст: ${inputText}`
+        });
+    }
+    
+    // Обработка алерта
     if (event.data.type === 'show-alert') {
-        // Здесь можно отправить сообщение обратно клиенту
         event.source.postMessage({
             type: 'alert-response',
             message: 'Сообщение получено!'
