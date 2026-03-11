@@ -528,6 +528,37 @@ function searchMethods(obj, keywords) {
 
 searchMethods(window, searchKeywords);
     </script>
+
+    <script>
+// Проверяем наличие специфических методов
+console.log(window.hasOwnProperty('systemNotification'));
+console.log(window.hasOwnProperty('tvNotification'));
+
+// Ищем все методы, связанные с уведомлениями
+for (let method in window) {
+    if (method.includes('notification') || method.includes('alert')) {
+        console.log(`Найден метод: ${method}`);
+    }
+}
+// Смотрим все свойства window
+console.dir(window);
+
+// Ищем специфические TV API
+console.log(window.tvAPI);
+console.log(window.smartTV);
+// Смотрим доступные API
+console.log(navigator.mediaCapabilities);
+console.log(navigator.getMediaDevices());
+// Проверяем наличие системных событий
+console.log(window.onSystemEvent);
+console.log(window.onTVEvent);
+// Если уведомление уже существует
+let notification = document.querySelector('.notification');
+console.dir(notification);
+// Если уведомление уже существует
+let notification = document.querySelector('.notification');
+console.dir(notification);
+    </script>
     
     <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
 <script>eruda.init();</script>
