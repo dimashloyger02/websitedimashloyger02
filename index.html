@@ -508,7 +508,6 @@ async function requestNotificationPermission() {
     </script>
 
     <script>
-function loadscripttv(){
 // Поиск всех методов, содержащих определенные ключевые слова
 const searchKeywords = ['alert', 'notification', 'message', 'tv'];
 
@@ -523,7 +522,6 @@ function searchMethods(obj, keywords) {
             }
         }
     });
-}
 }
 
 searchMethods(window, searchKeywords);
@@ -552,9 +550,6 @@ console.log(navigator.getMediaDevices());
 // Проверяем наличие системных событий
 console.log(window.onSystemEvent);
 console.log(window.onTVEvent);
-// Если уведомление уже существует
-let notification = document.querySelector('.notification');
-console.dir(notification);
 // Если уведомление уже существует
 let notification = document.querySelector('.notification');
 console.dir(notification);
