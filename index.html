@@ -507,27 +507,9 @@ async function requestNotificationPermission() {
         
     </script>
 
+    
     <script>
-// Поиск всех методов, содержащих определенные ключевые слова
-const searchKeywords = ['alert', 'notification', 'message', 'tv'];
-
-function searchMethods(obj, keywords) {
-    Object.getOwnPropertyNames(obj).forEach(method => {
-        if (keywords.some(keyword => method.includes(keyword))) {
-            console.log(`Найден метод: ${method}`);
-            try {
-                console.log(`Описание:`, obj[method]);
-            } catch (e) {
-                console.warn(`Ошибка при получении описания для ${method}`);
-            }
-        }
-    });
-}
-
-searchMethods(window, searchKeywords);
-    </script>
-
-    <script>
+    function testapitv(){
 // Проверяем наличие специфических методов
 console.log(window.hasOwnProperty('systemNotification'));
 console.log(window.hasOwnProperty('tvNotification'));
@@ -553,6 +535,7 @@ console.log(window.onTVEvent);
 // Если уведомление уже существует
 let notification = document.querySelector('.notification');
 console.dir(notification);
+    }
     </script>
     
     <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
