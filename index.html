@@ -524,14 +524,14 @@ for (let method in window) {
 console.dir(window);
 
 // Ищем специфические TV API
-console.log(window.tvAPI);
-console.log(window.smartTV);
+console.log('tvAPI: '+window.tvAPI);
+console.log('smartTV: '+window.smartTV);
 // Смотрим доступные API
-console.log(navigator.mediaCapabilities);
-console.log(navigator.getMediaDevices());
+console.log('mediaCapabilities: '+navigator.mediaCapabilities);
+console.log('getMediaDevices: '+navigator.getMediaDevices());
 // Проверяем наличие системных событий
-console.log(window.onSystemEvent);
-console.log(window.onTVEvent);
+console.log('onSystemEvent: '+window.onSystemEvent);
+console.log('onTVEvent: '+window.onTVEvent);
 // Если уведомление уже существует
 let notification = document.querySelector('.notification');
 console.dir(notification);
