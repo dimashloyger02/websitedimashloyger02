@@ -509,33 +509,45 @@ async function requestNotificationPermission() {
 
     
     <script>
-    function testapitv(){
-// Проверяем наличие специфических методов
-console.log(window.hasOwnProperty('systemNotification'));
-console.log(window.hasOwnProperty('tvNotification'));
+    function testapitv() {
+  const results = {};
 
-// Ищем все методы, связанные с уведомлениями
-for (let method in window) {
-    if (method.includes('notification') || method.includes('alert')) {
-        console.log(`Найден метод: ${method}`);
+  // Проверяем ключевые API с защитой от ошибок
+  ['tvAPI', 'smartTV', 'mediaCapabilities'].forEach(prop => {
+    results[prop] = window[prop] || 'not defined';
+  });
+
+  // Безопасный вызов getMediaDevices
+  results.getMediaDevices = typeof navigator.getMediaDevices === 'function' 
+    ? 'supported' 
+    : 'not supported';
+
+  // Поиск методов уведомлений с фильтрацией
+  const notificationMethods = [];
+  for (let method in window) {
+    if (
+      method.includes('notification') ||
+      method.includes('alert') ||
+      method.includes('message')
+    ) {
+      notificationMethods.push(method);
     }
+  }
+  results.notificationMethods = notificationMethods;
+
+  // Проверка системных событий
+  results.systemEvents = {
+    onSystemEvent: window.onSystemEvent || 'not defined',
+    onTVEvent: window.onTVEvent || 'not defined'
+  };
+
+  // Проверка DOM-элементов уведомлений
+  const notificationElem = document.querySelector('.notification');
+  results.notificationDOM = notificationElem ? 'found' : 'not found';
+
+  // Вывод результатов
+  console.log('Проверка API ТВ:', results);
 }
-// Смотрим все свойства window
-console.dir(window);
-
-// Ищем специфические TV API
-console.log('tvAPI: '+window.tvAPI);
-console.log('smartTV: '+window.smartTV);
-// Смотрим доступные API
-console.log('mediaCapabilities: '+navigator.mediaCapabilities);
-console.log('getMediaDevices: '+navigator.getMediaDevices());
-// Проверяем наличие системных событий
-console.log('onSystemEvent: '+window.onSystemEvent);
-console.log('onTVEvent: '+window.onTVEvent);
-// Если уведомление уже существует
-let notification = document.querySelector('.notification');
-console.dir(notification);
-    }
     </script>
     
     <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
