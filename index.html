@@ -180,7 +180,7 @@
     <script>
     async function loadLeaderboards() {
         try {
-            const response = await fetch('http://192.168.1.64:5000/api/users/all');
+            const response = await fetch('http://192.168.1.65:5000/api/users/all');
             const data = await response.json();
             
             // Функция для заполнения таблицы
@@ -220,7 +220,7 @@
     
     async function loadLeaderboards2() {
         try {
-            const response = await fetch('http://192.168.1.64:5000/api/monitoring');
+            const response = await fetch('http://192.168.1.65:5000/api/monitoring');
             const data = await response.json();
             
             // Заполняем таблицу статистики
@@ -285,7 +285,7 @@ homer = null
 // Функция для получения статистики игрока
 async function loadStats(playerTag) {
     try {
-        const response = await fetch(`http://192.168.1.64:5000/api/player/${playerTag}`);
+        const response = await fetch(`http://192.168.1.65:5000/api/player/${playerTag}`);
         
         if (!response.ok) {
             throw new Error(`Ошибка: ${response.status}`);
@@ -315,7 +315,7 @@ async function loadStats1() {
     // Получаем данные игроков
     for (let tag of competitionPlayers) {
         try {
-            const response = await fetch(`http://192.168.1.64:5000/api/player/${tag}`);
+            const response = await fetch(`http://192.168.1.65:5000/api/player/${tag}`);
             const data = await response.json();
             playersData.push({
                 name: data.name,
