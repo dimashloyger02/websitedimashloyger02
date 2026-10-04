@@ -1,112 +1,74 @@
-<script>
-    // Регистрация сервис-воркера
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/service-worker.js')
-                .then(registration => {
-                    console.log('Сервис-воркер зарегистрирован');
-                })
-                .catch(error => {
-                    console.error('Ошибка регистрации сервис-воркера:', error);
-                });
-        });
-    }
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA Test</title>
+    <style>
+        body { background: #000; color: #fff; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; }
+        button { padding: 15px 30px; font-size: 18px; cursor: pointer; background: orange; border: none; color: black; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Уведомления готовы</h1>
+    <p>Нажми кнопку, чтобы протестировать пуш.</p>
+    <button id="testBtn">Показать тестовое уведомление</button>
 
-    // Обработка сообщений от service worker
-    navigator.serviceWorker.addEventListener('message', (event) => {
-        console.log('Получено сообщение от SW:', event.data);
-        switch (event.data.type) {
-            case 'show-input':
-                console.log('Запрос на ввод текста');
-                const inputText = prompt(event.data.message);
-                if (inputText) {
-                    event.source.postMessage({
-                        type: 'input-response',
-                        text: inputText
-                    });
-                }
-                break;
-                
-            case 'input-confirmed':
-                console.log('Подтверждение ввода');
-                alert(event.data.message);
-                break;
-                
-            case 'show-alert':
-                console.log('Запрос на алерт');
-                alert(event.data.message);
-                break;
+    <script>
+        // 1. РЕГИСТРАЦИЯ SERVICE WORKER
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(reg => {
+                        console.log('SW зарегистрирован:', reg.scope);
+                        reg.update(); // Для тестов обновляем каждый раз
+                    })
+                    .catch(err => console.error('Ошибка регистрации SW:', err));
+            });
         }
-    });
 
-    // Функция для отправки уведомления
-    async function sendNotification(title, options = {}) {
-        try {
-            if (!window.Notification) {
-                console.log('Ваш браузер не поддерживает уведомления');
+        // 2. ТЕСТОВАЯ КНОПКА
+        const btn = document.getElementById('testBtn');
+        btn.addEventListener('click', async () => {
+            if (!("Notification" in window)) {
+                alert("Нет поддержки уведомлений");
                 return;
             }
-
-            if (Notification.permission !== 'granted') {
-                const permission = await Notification.requestPermission();
-                if (permission !== 'granted') {
-                    console.log('Уведомления запрещены');
-                    return;
-                }
+            const permission = await Notification.requestPermission();
+            if (permission !== "granted") {
+                alert("Разреши уведомления!");
+                return;
             }
 
             const registration = await navigator.serviceWorker.getRegistration();
-            if (!registration) {
-                console.error('Сервис-воркер не зарегистрирован');
-                return;
+            if (registration) {
+                await registration.showNotification('Тест работы', {
+                    body: 'Уведомление сработало! Попробуй нажать кнопки.',
+                    icon: 'https://media.brawltime.ninja/avatars/28000000.webp?size=192',
+                    badge: 'https://media.brawltime.ninja/avatars/28000000.webp?size=192',
+                    actions: [
+                        { action: 'reply', title: 'Ответить' },
+                        { action: 'alert', title: 'Показать сообщение' },
+                        { action: 'view', title: 'Открыть сайт' }
+                    ]
+                });
             }
+        });
 
-            await registration.showNotification(title, {
-                body: options.body || '',
-                icon: options.icon || '',
-                actions: [
-                    { action: 'reply', title: 'Ответить' },
-                    { action: 'alert', title: 'Показать сообщение' },
-                    { action: 'view', title: 'Открыть' }
-                ]
-            });
-        } catch (error) {
-            console.error('Ошибка при отправке уведомления:', error);
-        }
-    }
+        // 3. ОБРАБОТКА КЛИКОВ ПО ПУШАМ
+        const params = new URLSearchParams(window.location.search);
+        const action = params.get('action');
+        const message = params.get('message');
 
-    // Инициализация
-    document.addEventListener('DOMContentLoaded', async () => {
-        try {
-            // Сначала запрашиваем разрешение на уведомления
-            await requestNotificationPermission();
-            
-            // Отправляем тестовое уведомление
-            await sendNotification('Новое сообщение', {
-                body: 'Выберите действие:',
-                icon: 'https://media.brawltime.ninja/avatars/28000000.webp?size=192',
-                actions: [
-                    { action: 'reply', title: 'Ответить' },
-                    { action: 'alert', title: 'Показать сообщение' },
-                    { action: 'view', title: 'Открыть' }
-                ]
-            });
-        } catch (error) {
-            console.error('Ошибка инициализации:', error);
+        if (action === 'show-input') {
+            const text = prompt(message || 'Введите текст:');
+            if (text) console.log('Ответ:', text);
+            window.history.replaceState({}, '', window.location.pathname);
+        } 
+        else if (action === 'show-alert') {
+            alert(message || 'Это сработало из пуша!');
+            window.history.replaceState({}, '', window.location.pathname);
         }
-    });
-
-    // Функция запроса разрешения на уведомления
-    async function requestNotificationPermission() {
-        try {
-            const permission = await Notification.requestPermission();
-            if (permission === 'granted') {
-                console.log('Уведомления разрешены');
-            } else {
-                console.log('Уведомления запрещены');
-            }
-        } catch (error) {
-            console.error('Ошибка запроса разрешения:', error);
-        }
-    }
-</script>
+    </script>
+</body>
+</html>
