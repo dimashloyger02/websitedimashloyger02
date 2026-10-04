@@ -1,39 +1,29 @@
-// В service-worker.js
+// service-worker.js
+console.log('Service Worker активен');
+
 self.addEventListener('notificationclick', (event) => {
-    console.log('Обработчик notificationclick сработал');
+    console.log('Клик по уведомлению:', event.action);
     event.notification.close();
+
+    // Логика открытия страницы
+    const url = new URL(self.location.origin);
     
-    switch (event.action) {
-        case 'reply':
-            console.log('Обработка действия reply');
-            clients.matchAll({type: 'window'}).then((clientList) => {
-                clientList.forEach((client) => {
-                    client.postMessage({
-                        type: 'show-input',
-                        message: 'Введите ваш ответ:'
-                    });
-                });
-            });
-            break;
-            
-        case 'alert':
-            console.log('Обработка действия alert');
-            clients.matchAll({type: 'window'}).then((clientList) => {
-                clientList.forEach((client) => {
-                    client.postMessage({
-                        type: 'show-alert',
-                        message: 'Вы нажали кнопку Alert!'
-                    });
-                });
-            });
-            break;
-            
-        default:
-            console.log('Действие по умолчанию');
-            clients.openWindow('/').then(client => {
-                if (client) {
-                    client.focus();
-                }
-            });
+    if (event.action === 'reply') {
+        url.searchParams.set('action', 'show-input');
+        url.searchParams.set('message', 'Введите ваш ответ:');
+    } else if (event.action === 'alert') {
+        url.searchParams.set('action', 'show-alert');
+        url.searchParams.set('message', 'Вы нажали кнопку Alert!');
     }
+
+    event.waitUntil(
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+            const existingClient = clientList.find(client => client.url.startsWith(self.location.origin));
+            if (existingClient) {
+                existingClient.focus();
+                return existingClient.navigate(url.toString());
+            }
+            return clients.openWindow(url.toString());
+        })
+    );
 });
