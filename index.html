@@ -1,556 +1,112 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>API Test</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.000, maximum-scale=1.000, user-scalable=no, shrink-to-fit=no">
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <meta charset="utf-8">
-    <style>
-        @font-face {
-            font-family: '2';
-            src: url('https://forumstatic.ru/files/001a/a3/94/73088.ttf?v=1');
-        }
-        body {
-            background: #000000;
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-size: 16px;
-            color: #ffffff;
-            font-family: '2';
-        }
-        .header-title {
-            font-size: 26px;
-            font-weight: 700;
-            color: orange;
-            margin: 20px 0;
-        }
-        table {
-            width: 100%;
-            margin-bottom: 20px;
-            font-family: '2';
-        }
-        th, td {
-    padding: 10px;
-    text-align: left;
-    border: 1px solid #ffffff; /* Добавляем границу */
-    font-family: '2';
-}
-
-        th {
-    background-color: #222; /* Опционально: добавляем фоновый цвет для заголовков */
-}
-        .stats-overlay {
-            background: rgba(0,0,0,0.8);
-            padding: 15px;
-            border-radius: 5px;
-            color: #fff;
-        }
-
-        .stat {
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-
-        .value {
-            color: orange;
-        }
-
-        .updated {
-            font-size: 12px;
-            color: #888;
-        }
-    </style>
-</head>
-<body>
-    <div style="text-align: center; margin-bottom: 20px;">
-        <button onclick="loadLeaderboards()" style="padding: 15px 30px; font-size: 18px;">Обновить таблицы</button><br>
-        <button onclick="loadLeaderboards2()" style="padding: 15px 30px; font-size: 18px;">Обновить таблицы</button>
-    </div>
-
-    <div class="leaderboard-container">
-        <div class="header-title">Топ по гемам</div>
-        <div id="gemsTable" class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Место</th>
-                        <th>Имя</th>
-                        <th>Гемы</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="leaderboard-container">
-        <div class="header-title">Топ по опыту</div>
-        <div id="xpTable" class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Место</th>
-                        <th>Имя</th>
-                        <th>XP</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="leaderboard-container">
-        <div class="header-title">Топ по кликам</div>
-        <div id="clicksTable" class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Место</th>
-                        <th>Имя</th>
-                        <th>Клики</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="leaderboard-container">
-        <div class="header-title">Топ по звездам</div>
-        <div id="starsTable" class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Место</th>
-                        <th>Имя</th>
-                        <th>Звёзды</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="leaderboard-container">
-        <div class="header-title">Топ по спинам</div>
-        <div id="spinsTable" class="table-wrapper">
-            <table>
-                <thead>
-                    <th>Место</th>
-                    <th>Имя</th>
-                    <th>Спины</th>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="leaderboard-container">
-        <div class="header-title">Статистика мониторинга</div>
-        <div id="statsTable" class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Показатель</th>
-                        <th>Значение</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="leaderboard-container">
-        <div class="header-title">Информация об обновлении</div>
-        <div id="updateInfo">
-            <p>Последнее обновление: <span id="lastUpdate"></span></p>
-        </div>
-    </div>
-    
-<span id="competitionContainer">Работает?</span><br>
-<button onclick="loadStats1()" style="padding: 15px 30px; font-size: 18px;">Обновить</button><hr>
-
-    <script>
-    async function loadLeaderboards() {
-        try {
-            const response = await fetch('http://192.168.1.65:5000/api/users/all');
-            const data = await response.json();
-            
-            // Функция для заполнения таблицы
-            function fillTable(tableId, sortField, fieldName) {
-                const tableBody = document.querySelector(`${tableId} tbody`);
-                tableBody.innerHTML = '';
-                
-                // Сортируем данные по нужному полю
-                const sortedData = [...data].sort((a, b) => b[sortField] - a[sortField]);
-                
-                // Заполняем таблицу
-                sortedData.slice(0, 6).forEach((player, index) => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${index + 1}</td>
-                        <td>${player.first_name}</td>
-                        <td>${player[sortField]}</td>
-                    `;
-                    tableBody.appendChild(row);
+<script>
+    // Регистрация сервис-воркера
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/service-worker.js')
+                .then(registration => {
+                    console.log('Сервис-воркер зарегистрирован');
+                })
+                .catch(error => {
+                    console.error('Ошибка регистрации сервис-воркера:', error);
                 });
-            }
-            
-            // Заполняем все таблицы
-            fillTable('#gemsTable', 'gems', 'Гемы');
-            fillTable('#xpTable', 'xp', 'XP');
-            fillTable('#clicksTable', 'click_count', 'Клики');
-            fillTable('#starsTable', 'stars', 'Звёзды');
-            fillTable('#spinsTable', 'spin_count', 'Спины');
-            
-        } catch (error) {
-            console.error('Ошибка:', error);
-        }
+        });
     }
 
-    // Загружаем таблицы при загрузке страницы
-    window.addEventListener('load', loadLeaderboards);
-    
-    async function loadLeaderboards2() {
-        try {
-            const response = await fetch('http://192.168.1.65:5000/api/monitoring');
-            const data = await response.json();
-            
-            // Заполняем таблицу статистики
-            const statsTableBody = document.querySelector('#statsTable tbody');
-            statsTableBody.innerHTML = '';
-            
-            // Массив для отображения нужных показателей
-            const statsFields = [
-                { key: 'monitoring_players', name: 'Количество игроков' },
-                { key: 'monitoring_mau', name: 'MAU' },
-                { key: 'monitoring_click_count', name: 'Общее количество кликов' },
-                { key: 'monitoring_xp', name: 'Общий XP' },
-                { key: 'monitoring_gems', name: 'Общие гемы' },
-                { key: 'monitoring_payed_gems', name: 'Купленные гемы' },
-                { key: 'monitoring_withdraw_gems', name: 'Выведенные гемы' },
-                { key: 'monitoring_bank_gems', name: 'Гемы в банке' },
-                { key: 'monitoring_stars', name: 'Общие звезды' },
-                { key: 'monitoring_payed_stars', name: 'Купленные звезды' },
-                { key: 'monitoring_withdraw_stars', name: 'Выведенные звезды' },
-                { key: 'monitoring_bank_stars', name: 'Звезды в банке' },
-                { key: 'monitoring_spin_count', name: 'Общее количество спинов' },
-                { key: 'monitoring_win_spin_count', name: 'Выигрышные спины' },
-                { key: 'monitoring_lose_spin_count', name: 'Проигрышные спины' }
-            ];
-            
-            // Заполняем строки таблицы
-            statsFields.forEach(field => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${field.name}</td>
-                    <td>${data[field.key] || 0}</td>
-                `;
-                statsTableBody.appendChild(row);
-            });
-            
-            // Обновляем информацию о последнем обновлении
-            document.getElementById('lastUpdate').textContent = data.last_updated || 'Данные отсутствуют';
-            
-        } catch (error) {
-            console.error('Ошибка:', error);
-            alert('Не удалось загрузить данные. Попробуйте обновить страницу.');
+    // Обработка сообщений от service worker
+    navigator.serviceWorker.addEventListener('message', (event) => {
+        console.log('Получено сообщение от SW:', event.data);
+        switch (event.data.type) {
+            case 'show-input':
+                console.log('Запрос на ввод текста');
+                const inputText = prompt(event.data.message);
+                if (inputText) {
+                    event.source.postMessage({
+                        type: 'input-response',
+                        text: inputText
+                    });
+                }
+                break;
+                
+            case 'input-confirmed':
+                console.log('Подтверждение ввода');
+                alert(event.data.message);
+                break;
+                
+            case 'show-alert':
+                console.log('Запрос на алерт');
+                alert(event.data.message);
+                break;
         }
-    }
-
-    window.addEventListener('load', loadLeaderboards2);
-    
-const players = [
-    '29G9UY820',    // Дима
-    'YQ9G0QGUP',    // Dexs23
-    'Q9C8C9YLY',    // Дмитрий
-    'YCYGVYJY9',    // 1 ЛАЙК=1 КУБОК
-    'QJPR99GV2',    // Путь Славы
-    'GJPYY0PLG',    // Любимый
-    'GCRUP2QRL',    // Ютубер :)
-    'RPVQ22QGU',    // Дима 2
-    'URVG2RPVP',    // Путь 100 призов
-    '298GJRG29R'    // Gemstone
-];
-
-homer = null
-
-// Функция для получения статистики игрока
-async function loadStats(playerTag) {
-    try {
-        const response = await fetch(`http://192.168.1.65:5000/api/player/${playerTag}`);
-        
-        if (!response.ok) {
-            throw new Error(`Ошибка: ${response.status}`);
-        }
-        
-        // Сохраняем результат в переменную
-        const homs = await response.json();
-        
-        // Теперь можно использовать homs как обычную переменную
-        console.log('Полученные данные:', homs);
-        homer = homs
-        
-        // Возвращаем данные
-        return homs;
-        
-    } catch (error) {
-        console.error(`Ошибка для тега ${playerTag}:`, error);
-        return null;
-    }
-}
-
-async function loadStats1() {
-    const competitionPlayers = ['ULQY2U8U', '80RCCGQL'];
-    const TARGET = 200000;
-    let playersData = [];
-
-    // Получаем данные игроков
-    for (let tag of competitionPlayers) {
-        try {
-            const response = await fetch(`http://192.168.1.65:5000/api/player/${tag}`);
-            const data = await response.json();
-            playersData.push({
-                name: data.name,
-                tag: tag,
-                trophies: data.trophies,
-                toTarget: TARGET - data.trophies
-            });
-        } catch (error) {
-            console.error(`Ошибка загрузки данных для ${tag}:`, error);
-        }
-    }
-
-    // Сортируем по трофеям (по убыванию)
-    playersData.sort((a, b) => b.trophies - a.trophies);
-
-    // Добавляем CSS стили для выделения
-    const styles = `
-        <style>
-            #competitionTable {
-                font-family: '2';
-                color: white;
-                background: black;
-                padding: 15px;
-            }
-            .quotes {
-                margin-bottom: 10px;
-                padding: 5px;
-                border-left: 3px solid #777;
-            }
-            .quotes b {
-                color: gold;
-            }
-            .winner {
-                color: gold;
-                font-size: 1.2em;
-            }
-        </style>
-    `;
-
-    // Формируем HTML-строку с таблицей лидеров
-    let htmlOutput = `
-        ${styles}
-        <div id="competitionTable">
-            <b>🎯 СОРЕВНОВАНИЕ ЗА 200000 ТРОФЕЕВ 🎯</b><br><br>
-            <b>🏆 ТАБЛИЦА ЛИДЕРОВ:</b><br><br>
-    `;
-
-    playersData.forEach((player, index) => {
-        htmlOutput += `
-            <div class="quotes">
-                ${index + 1}. <b>${player.name} (${player.tag})</b>:<br>
-                &nbsp;&nbsp;• Текущие трофеи: <b>${player.trophies}</b><br>
-                &nbsp;&nbsp;• До цели: <b>${player.toTarget}</b><br><br>
-            </div>
-        `;
     });
 
-    // Добавляем информацию о победителе
-    const winner = playersData.find(player => player.trophies >= TARGET);
-    if (winner) {
-        htmlOutput += `<div class="winner"><br>🏆 ПОБЕДИТЕЛЬ: ${winner.name}!</div>`;
-    } else {
-        htmlOutput += `<br><b>🏆 Победитель пока не определен</b><br>`;
-    }
-
-    htmlOutput += '</div>';
-
-    // Выводим в элемент DOM
-    document.getElementById('competitionContainer').innerHTML = htmlOutput;
-}
-
-// Запуск обновления при загрузке страницы
-window.addEventListener('load', () => {
-    loadStats1();
-});
-    </script>
-
-    <script>
-        // Регистрация сервис-воркера
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js')
-            .then(registration => {
-                console.log('Сервис-воркер зарегистрирован');
-            })
-            .catch(error => {
-                console.error('Ошибка регистрации сервис-воркера:', error);
-            });
-    });
-}
-
-// Обработка сообщений от service worker
-navigator.serviceWorker.addEventListener('message', (event) => {
-    console.log('Получено сообщение от SW:', event.data);
-    switch (event.data.type) {
-        case 'show-input':
-            console.log('Запрос на ввод текста');
-            const inputText = prompt(event.data.message);
-            if (inputText) {
-                event.source.postMessage({
-                    type: 'input-response',
-                    text: inputText
-                });
-            }
-            break;
-            
-        case 'input-confirmed':
-            console.log('Подтверждение ввода');
-            alert(event.data.message);
-            break;
-            
-        case 'show-alert':
-            console.log('Запрос на алерт');
-            alert(event.data.message);
-            break;
-    }
-});
-
-// Функция для отправки уведомления
-async function sendNotification(title, options = {}) {
-    try {
-        if (!window.Notification) {
-            console.log('Ваш браузер не поддерживает уведомления');
-            return;
-        }
-
-        if (Notification.permission !== 'granted') {
-            const permission = await Notification.requestPermission();
-            if (permission !== 'granted') {
-                console.log('Уведомления запрещены');
+    // Функция для отправки уведомления
+    async function sendNotification(title, options = {}) {
+        try {
+            if (!window.Notification) {
+                console.log('Ваш браузер не поддерживает уведомления');
                 return;
             }
-        }
 
-        const registration = await navigator.serviceWorker.getRegistration();
-        if (!registration) {
-            console.error('Сервис-воркер не зарегистрирован');
-            return;
-        }
-
-        await registration.showNotification(title, {
-            body: options.body || '',
-            icon: options.icon || '',
-            actions: [
-                { action: 'reply', title: 'Ответить' },
-                { action: 'alert', title: 'Показать сообщение' },
-                { action: 'view', title: 'Открыть' }
-            ]
-        });
-    } catch (error) {
-        console.error('Ошибка при отправке уведомления:', error);
-    }
-}
-
-// Инициализация
-document.addEventListener('DOMContentLoaded', async () => {
-    try {
-        // Сначала запрашиваем разрешение на уведомления
-        await requestNotificationPermission();
-        
-        // Отправляем тестовое уведомление
-        await sendNotification('Новое сообщение', {
-            body: 'Выберите действие:',
-            icon: 'https://media.brawltime.ninja/avatars/28000000.webp?size=192',
-            actions: [
-                { action: 'reply', title: 'Ответить' },
-                { action: 'alert', title: 'Показать сообщение' },
-                { action: 'view', title: 'Открыть' }
-            ]
-        });
-    } catch (error) {
-        console.error('Ошибка инициализации:', error);
-    }
-});
-
-// Функция запроса разрешения на уведомления
-async function requestNotificationPermission() {
-    try {
-        const permission = await Notification.requestPermission();
-        if (permission === 'granted') {
-            console.log('Уведомления разрешены');
-        } else {
-            console.log('Уведомления запрещены');
-        }
-    } catch (error) {
-        console.error('Ошибка запроса разрешения:', error);
-    }
+            if (Notification.permission !== 'granted') {
+                const permission = await Notification.requestPermission();
+                if (permission !== 'granted') {
+                    console.log('Уведомления запрещены');
+                    return;
                 }
-        
-    </script>
+            }
 
-    
-    <script>
-    function testapitv() {
-  const results = {};
+            const registration = await navigator.serviceWorker.getRegistration();
+            if (!registration) {
+                console.error('Сервис-воркер не зарегистрирован');
+                return;
+            }
 
-  // Проверяем ключевые API с защитой от ошибок
-  ['tvAPI', 'smartTV', 'mediaCapabilities'].forEach(prop => {
-    results[prop] = window[prop] || 'not defined';
-  });
-
-  // Безопасный вызов getMediaDevices
-  results.getMediaDevices = typeof navigator.getMediaDevices === 'function' 
-    ? 'supported' 
-    : 'not supported';
-
-  // Поиск методов уведомлений с фильтрацией
-  const notificationMethods = [];
-  for (let method in window) {
-    if (
-      method.includes('notification') ||
-      method.includes('alert') ||
-      method.includes('message')
-    ) {
-      notificationMethods.push(method);
+            await registration.showNotification(title, {
+                body: options.body || '',
+                icon: options.icon || '',
+                actions: [
+                    { action: 'reply', title: 'Ответить' },
+                    { action: 'alert', title: 'Показать сообщение' },
+                    { action: 'view', title: 'Открыть' }
+                ]
+            });
+        } catch (error) {
+            console.error('Ошибка при отправке уведомления:', error);
+        }
     }
-  }
-  results.notificationMethods = notificationMethods;
 
-  // Проверка системных событий
-  results.systemEvents = {
-    onSystemEvent: window.onSystemEvent || 'not defined',
-    onTVEvent: window.onTVEvent || 'not defined'
-  };
+    // Инициализация
+    document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            // Сначала запрашиваем разрешение на уведомления
+            await requestNotificationPermission();
+            
+            // Отправляем тестовое уведомление
+            await sendNotification('Новое сообщение', {
+                body: 'Выберите действие:',
+                icon: 'https://media.brawltime.ninja/avatars/28000000.webp?size=192',
+                actions: [
+                    { action: 'reply', title: 'Ответить' },
+                    { action: 'alert', title: 'Показать сообщение' },
+                    { action: 'view', title: 'Открыть' }
+                ]
+            });
+        } catch (error) {
+            console.error('Ошибка инициализации:', error);
+        }
+    });
 
-  // Проверка DOM-элементов уведомлений
-  const notificationElem = document.querySelector('.notification');
-  results.notificationDOM = notificationElem ? 'found' : 'not found';
-
-  // Вывод результатов
-  console.log('Проверка API ТВ:', results);
-}
-    </script>
-    
-    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-<script>eruda.init();</script>
-</body>
-</html>
+    // Функция запроса разрешения на уведомления
+    async function requestNotificationPermission() {
+        try {
+            const permission = await Notification.requestPermission();
+            if (permission === 'granted') {
+                console.log('Уведомления разрешены');
+            } else {
+                console.log('Уведомления запрещены');
+            }
+        } catch (error) {
+            console.error('Ошибка запроса разрешения:', error);
+        }
+    }
+</script>
