@@ -1,0 +1,16 @@
+{
+  "headers": [
+    {
+      "source": "/(.*).wml",
+      "headers": [
+        { "key": "Content-Type", "value": "text/vnd.wap.wml" }
+      ]
+    },
+    {
+      "source": "/(.*).wmls",
+      "headers": [
+        { "key": "Content-Type", "value": "text/vnd.wap.wmlscript" }
+      ]
+    }
+  ]
+}
