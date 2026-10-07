@@ -4,7 +4,7 @@
 <wml>
   <card id="main" title="Приветствие">
 <p>Привет</p>
-<do type="accept" label="next">Вперёд</do>
- <do type="prev" label="back">Назад</do>
+<do type="accept" label="next"></do>
+ <do type="prev" label="back"></do>
   </card>
 </wml>
