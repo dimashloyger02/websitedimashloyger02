@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Приветствие</title>
+    <style>
+        body { font-family: monospace; padding: 10px; background: #fff; color: #000; }
+        .card { border: 1px solid #000; padding: 10px; max-width: 300px; }
+        input { font-family: monospace; width: 90%; margin-bottom: 10px; }
+        .btn { display: inline-block; border: 1px solid #000; background: #eee; padding: 2px 10px; text-decoration: none; color: #000; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+  <div class="card" id="main">
+    <p><b>Приветствие</b></p>
+    <p>
+      Введите ваше имя:<br>
+      <input id="user_name" type="text"/>
+    </p>
+
+    <!-- Кнопка "Запустить" -->
+    <div class="btn" onclick="testFunction()">Запустить</div>
+
+    <p id="result_message"></p>
+  </div>
+
+  <script>
+    // Старый добрый синтаксис JavaScript, понятный любым телефонам
+    var WMLBrowser = {
+        getVar: function(id) {
+            return document.getElementById(id).value;
+        },
+        setVar: function(id, value) {
+            document.getElementById(id).innerHTML = value;
+        },
+        refresh: function() {}
+    };
+
+    function testFunction() {
+        var name = WMLBrowser.getVar("user_name");
+        
+        if (name === "") {
+            name = "Аноним";
+        }
+        
+        var greeting = "Ура, скрипт работает! Привет, " + name;
+        WMLBrowser.setVar("result_message", greeting);
+    }
+  </script>
+
+</body>
+</html>
