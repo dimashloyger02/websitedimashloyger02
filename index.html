@@ -1,33 +1,92 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta charset="UTF-8">
+<script src="/storage/emulated/0/Библиотека/Brawl+Stars/Резерв/Кнопки/tmi.js"></script>
 <style>
 @font-face {
     font-family: '1';
-    src: url('https://brawltytlol.vercel.app/css/Inter-Regular.otf');
+    src: url('https://brawltytlol.vercel.app/css/BarNewRomanPix.ttf');
 }
-@font-face {
-    font-family: '2';
-    src: url('https://brawltytlol.vercel.app/css/Inter-SemiBold.otf');
-}
-@font-face {
-    font-family: '3';
-    src: url('https://brawltytlol.vercel.app/css/Roobert-Bold.otf');
-}
-@font-face {
-    font-family: '4';
-    src: url('https://brawltytlol.vercel.app/css/RoobertTW-Regular.otf');
-}
-@font-face {
-    font-family: '5';
-    src: url('https://brawltytlol.vercel.app/css/RoobertTW-Medium.otf');
-}
-body {
-        background: #000000;
+button {
+        width: 230px;
+        height: 40px;
+        background: #EFEFEF;
+        color: #000000;
         font-family: '1';
-        color: #FFFFFF;
+        white-space: nowrap;
+        padding: 1px 6px
+        border: 1.77777px solid #000000;
+        font-size: 14px;
+    }
+button:active {
+        background: #EFEFEF;
+        color: #000000;
+        white-space: nowrap;
+        font-family: '1';
+    }
+</style>
+
+<style>
+body {
+background: #000000;
+font-family: '1';
+color: #EFEFEF;
+}
+#players-1{
+  width: 100%;             /* Занимает всю ширину экрана смартфона */
+  overflow-x: auto;        /* Включает горизонтальную прокрутку, если таблица не влезает */
+  overflow-y: hidden;      /* Отключает вертикальный скролл в этой области */
+  border: 0px solid #00ff00; /* Зеленая рамка вокруг зоны прокрутки */
+  background: #000000;
+  font-size: 16px;
+  white-space: nowrap;
+  margin-bottom: 0px;
+  color: #0099ff;
+}
+
+#top-1{
+padding: 1px 2px;
+color: #000
 }
 </style>
 
-Типо страница...
+<b style="padding: 2px 2px; font-size: 24px">Топ Twitch</b>
+<div class="btn-container">
+<button onclick="topfile3()">🍀 Загрузить данные</button><br>
+<button onclick="render2buttons()">🍀 Загрузить топ</button>
+</div><br>
 
-34 fox
+<div id="players-1">
+<div id="top-1" style="white-space: pre-wrap;background: rgba(255, 255, 255, 1.00);">null</div>
+</div><br>
+
+<script>
+async function topfile3(){
+const response = await fetch(`/storage/emulated/0/Библиотека/Twitch/points.json`);
+globalFile3 = await response.json();
+console.log(globalFile3)
+}
+
+topfile3()
+
+function render2buttons(){
+let dum1 = "";
+let load1 = "";
+let load2 = "";
+let load3 = "";
+
+// Перевели в удобный цикл for...of
+for (let sda1 of Object.entries(globalFile3)) {
+        
+// Пока оставляем sda как есть, под твою дальнейшую настройку свойств
+load1 = sda1[0]|| `Unknown`
+sac1 = sda1
+dum1 += `<div><span style="color: ${sda1[1]['color']}">${load1}</span> - ${sda1[1]['points']} монет</div>`
+
+console.log(sac1)
+}
+
+const container1 = document.getElementById(`top-1`);
+
+container1.innerHTML = `<div style="padding: 2px 2px;">${dum1}</div>`
+}
+</script>
