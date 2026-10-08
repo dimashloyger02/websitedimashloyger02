@@ -61,7 +61,7 @@ color: #000
 
 <script>
 async function topfile3(){
-const response = await fetch(`/storage/emulated/0/Библиотека/Twitch/points.json`);
+const response = await fetch(`http://localhost:5000/points.json`);
 globalFile3 = await response.json();
 console.log(globalFile3)
 }
