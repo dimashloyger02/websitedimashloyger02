@@ -54,6 +54,42 @@ color: #000
 <div id="top-1" style="white-space: pre-wrap;background: rgba(255, 255, 255, 1.00);">null</div>
 </div><br>
 
+<div class="header">WAP.Приветствие</div>
+<div class="card">
+  <div class="row">
+    Введите ваше имя:<br>
+    <input id="user_name" type="text"/>
+  </div>
+  
+  <div class="btn" onclick="testFunction()">[ Запустить ]</div>
+  
+  <p id="result_message"></p>
+</div>
+    
+  <script>
+    // Старый добрый синтаксис JavaScript, понятный любым телефонам
+    var WMLBrowser = {
+        getVar: function(id) {
+            return document.getElementById(id).value;
+        },
+        setVar: function(id, value) {
+            document.getElementById(id).innerHTML = value;
+        },
+        refresh: function() {}
+    };
+
+    function testFunction() {
+        var name = WMLBrowser.getVar("user_name");
+        
+        if (name === "") {
+            name = "Аноним";
+        }
+        
+        var greeting = "Ура, скрипт работает! Привет, " + name;
+        WMLBrowser.setVar("result_message", greeting);
+    }
+  </script>
+
 <script>
 sda1 = {}
 sda1.null = {}
